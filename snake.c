@@ -163,7 +163,7 @@ void reset_snake()
 
 void render_snake(SDL_Renderer *renderer, int x, int y)
 {
-	SDL_SetRenderDrawColor(renderer, 0x00, 0xff, 0xff, 255);
+	SDL_SetRenderDrawColor(renderer, 0x00, 0xff, 0x00, 255);
 
 	int seg_size = GRID_DIM / GRID_SIZE;
 	SDL_Rect seg;
@@ -174,7 +174,7 @@ void render_snake(SDL_Renderer *renderer, int x, int y)
 
 	while(track != NULL) {
 		seg.x = x + track->x * seg_size;
-		seg.y = y + track->y* seg_size;
+		seg.y = y + track->y * seg_size;
 
 		SDL_RenderFillRect(renderer, &seg);
 
@@ -186,7 +186,7 @@ void render_snake(SDL_Renderer *renderer, int x, int y)
 
 void render_grid(SDL_Renderer *renderer, int x, int y)
 {
-	SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 255);
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x55, 0x55, 255);
 
 #if 0
 
@@ -240,7 +240,7 @@ void gen_apple()
 
 void render_apple(SDL_Renderer *renderer, int x, int y)
 {
-	SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0xff, 255);
+	SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 255);
 
 	int apple_size = GRID_DIM / GRID_SIZE;
 
