@@ -15,7 +15,7 @@
 #define WINDOW_Y -20
 #endif
 
-#define GRID_SIZE 20
+#define GRID_SIZE 30
 #define GRID_DIM 1000 
 
 enum {
@@ -360,22 +360,22 @@ int main()
 			}	
 		}	
 
-	SDL_RenderClear(renderer);
-	// RENDER LOOP START
-	
-	move_snake();
-	detect_apple();
-	detect_crash();
-	
-	render_grid(renderer, grid_x, grid_y);
-	render_snake(renderer, grid_x, grid_y);
-	render_apple(renderer, grid_x, grid_y);
+		SDL_RenderClear(renderer);
+		// RENDER LOOP START
+		
+		move_snake();
+		detect_apple();
+		detect_crash();
+		
+		render_grid(renderer, grid_x, grid_y);
+		render_snake(renderer, grid_x, grid_y);
+		render_apple(renderer, grid_x, grid_y);
 
-	// RENDER LOOP END
-	SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 255);
-	SDL_RenderPresent(renderer);
+		// RENDER LOOP END
+		SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 255);
+		SDL_RenderPresent(renderer);
 
-	SDL_Delay(140);
+		SDL_Delay(140);
 
 	}
 
