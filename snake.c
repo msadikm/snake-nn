@@ -10,7 +10,7 @@
 #else
 // STREAM
 #define WINDOW_WIDTH 1770
-#define WINDOW_HEIGHT 1405
+#define WINDOW_HEIGHT 1005
 #define WINDOW_X 10
 #define WINDOW_Y -20
 #endif
@@ -62,6 +62,26 @@ void init_snake()
 void increase_snake() 
 {
 	Snake *new = malloc(sizeof(Snake));
+
+	switch(tail->dir) {
+		case SNAKE_UP:
+			new->x = tail->x;
+			new->y = tail->y + 1;
+			break;	
+		case SNAKE_DOWN:
+			new->x = tail->x;
+			new->y = tail->y - 1;
+			break;	
+		case SNAKE_LEFT:
+			new->x = tail->x + 1;
+			new->y = tail->y;
+			break;	
+		case SNAKE_RIGHT:
+			new->x = tail->x - 1;
+			new->y = tail->y;
+			break;	
+	}
+
 	new->x = tail->x;
 	new->y = tail->y - 1;
 	new->dir = tail->dir;
@@ -79,6 +99,7 @@ void move_snake()
 
 	int prev_x = head->x;
 	int prev_y = head->y;
+	int prev_dir = head->dir;
 
 	switch(head->dir) {
 		case SNAKE_UP:
@@ -105,15 +126,37 @@ void move_snake()
 		
 		int save_x = track->x;
 		int save_y = track->y;
+		int save_dir = track->dir;
 
 		track->x = prev_x;
 		track->y = prev_y;
+		track->dir = prev_dir;
 
 		track = track->next;	
 
 		prev_x = save_x;
 		prev_y = save_y;
+		prev_dir = save_dir;
 	}
+
+	return;
+}
+
+void reset_snake()
+{
+	Snake *track = head;
+	Snake *temp;
+
+	while(track != NULL) {
+		temp = track;
+		track = track->next;
+		free(temp);	
+	}
+
+	init_snake();
+	increase_snake();
+	increase_snake();
+	increase_snake();
 
 	return;
 }
@@ -144,6 +187,9 @@ void render_snake(SDL_Renderer *renderer, int x, int y)
 void render_grid(SDL_Renderer *renderer, int x, int y)
 {
 	SDL_SetRenderDrawColor(renderer, 0x55, 0x55, 0x55, 255);
+
+#if 0
+
 	int cell_size = GRID_DIM / GRID_SIZE;
 
 	SDL_Rect cell;
@@ -157,19 +203,44 @@ void render_grid(SDL_Renderer *renderer, int x, int y)
 			SDL_RenderDrawRect(renderer, &cell);
 		}	
 	}
+#else
+	SDL_Rect outline;
+	outline.x = x;
+	outline.y = y;
+	outline.w = GRID_DIM;
+	outline.h = GRID_DIM;
 
+	SDL_RenderDrawRect(renderer, &outline);
+
+#endif
 	return;
 }
 
 void gen_apple()
 {
-	Apple.x = rand() % GRID_SIZE;
-	Apple.y = rand() % GRID_SIZE;
+	bool in_snake;
+
+	do {
+		in_snake = false;
+		Apple.x = rand() % GRID_SIZE;
+		Apple.y = rand() % GRID_SIZE;
+
+		Snake *track = head;
+
+		while(track != NULL) {
+			if (track->x == Apple.x && track->y == Apple.y) {
+				in_snake = true;	
+			}
+
+			track = track->next;	
+		}
+	}
+	while(in_snake);
 }
 
 void render_apple(SDL_Renderer *renderer, int x, int y)
 {
-	SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 255);
+	SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0xff, 255);
 
 	int apple_size = GRID_DIM / GRID_SIZE;
 
@@ -180,6 +251,39 @@ void render_apple(SDL_Renderer *renderer, int x, int y)
 	app.x = x + Apple.x * apple_size;
 	app.y = y + Apple.y * apple_size;
 	
+	SDL_RenderFillRect(renderer, &app);
+}
+
+void detect_apple()
+{
+	if (head->x == Apple.x && head->y == Apple.y) {
+		gen_apple();
+		increase_snake();	
+	}
+
+	return;
+}
+
+void detect_crash()
+{
+	if(head->x < 0 || head->x >= GRID_SIZE || head->y < 0 || head->y >= GRID_SIZE) {
+		reset_snake();
+	}
+
+	Snake *track = head;
+
+	if(track->next != NULL) {
+		track = track->next;	
+	}
+
+	while(track != NULL) {
+		if (track->x == head->x && track->y == head->y) {
+			reset_snake();
+		}	
+		track = track->next;
+	}
+
+	return;
 }
 
 int main() 
@@ -260,6 +364,8 @@ int main()
 	// RENDER LOOP START
 	
 	move_snake();
+	detect_apple();
+	detect_crash();
 	
 	render_grid(renderer, grid_x, grid_y);
 	render_snake(renderer, grid_x, grid_y);
@@ -269,7 +375,7 @@ int main()
 	SDL_SetRenderDrawColor(renderer, 0x11, 0x11, 0x11, 255);
 	SDL_RenderPresent(renderer);
 
-	SDL_Delay(200);
+	SDL_Delay(140);
 
 	}
 
